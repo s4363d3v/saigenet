@@ -26354,9 +26354,11 @@ var sAIgenetAPI = (function() {
         try {
           if (jsonResponse["choices"] != void 0 && jsonResponse["choices"][0]["message"] != void 0) {
             jsonResponse["choices"][0]["delta"] = jsonResponse["choices"][0]["message"];
+            jsonResponse["choices"][0]["message"] = null;
             delete jsonResponse["choices"][0]["message"];
             jsonResponse["object"] = "chat.completion.chunk";
             textResponse = JSON.stringify(jsonResponse);
+            textResponse = "data: " + textResponse + "\n\n";
           }
         } catch (e) {
           console.log(e);
@@ -26364,10 +26366,16 @@ var sAIgenetAPI = (function() {
         res.header("Content-Type", "text/event-stream");
         res.header("x-tor-ip", remoteResponse.IpAddress);
         res.header("Cache-Control", "no-cache");
-        res.send("data: " + textResponse);
+        if (this._verbose == true) {
+          console.log(textResponse);
+        }
+        res.send(textResponse);
       } else {
         res.header("Content-Type", "application/json");
         res.header("x-tor-ip", remoteResponse.IpAddress);
+        if (this._verbose == true) {
+          console.log(textResponse);
+        }
         res.send(textResponse);
       }
     },
