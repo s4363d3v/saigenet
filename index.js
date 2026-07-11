@@ -26270,7 +26270,7 @@ var sAIgenetAPI = (function() {
           case "max_tokens":
           case "temperature":
           case "top_p":
-          case "stream":
+          //case "stream":
           case "tools":
           case "tool_choice":
           case "response_format":
