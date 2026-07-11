@@ -26204,34 +26204,25 @@ var sAIgenetAPI = (function() {
       }
       this._torConfig = torConfig;
     },
-    FetchWithTor: async function(url, init2) {
-      let client2 = new TorClient2(this._torConfig);
-      let ipResponse = await client2.fetch("https://check.torproject.org/api/ip");
-      let ipAdress = JSON.parse(await ipResponse.text()).IP;
-      let response = await client2.fetch(url, init2);
-      client2.close();
-      if (this._verbose) {
-        console.log(url, init2, ipAdress);
-        console.log(response);
+    Fetch: function(url, init2) {
+      {
+        let client2 = new TorClient2(this._torConfig);
+        return client2.fetch(url, init2);
+        client2.close();
       }
-      return {
-        Response: response,
-        IpAddress: ipAdress
-      };
     },
     ResolveModelCall: async function(req, res, next) {
       if (req.headers["authorization"] == void 0 || req.headers["authorization"] == null || req.headers["authorization"] != "Bearer " + this._key) {
         res.sendStatus(401);
         return;
       }
-      var torRes = await this.FetchWithTor(this._blockrunBase + "/v1/models", {
+      var torRes = await this.Fetch(this._blockrunBase + "/v1/models", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         //body: JSON.stringify({ key: 'value' }),
         signal: AbortSignal.timeout(3e4)
       });
-      res.header("x-tor-ip", torRes.IpAddress);
-      var textResponse = await torRes.Response.text();
+      var textResponse = await torRes.text();
       var parsedResponse = JSON.parse(textResponse);
       var objResponse = {
         network: "mainnet",
@@ -26255,7 +26246,9 @@ var sAIgenetAPI = (function() {
         return;
       }
       var data = req.body;
-      console.log(req);
+      if (this._verbose) {
+        console.log(req);
+      }
       if (data.model == void 0 || data.messages == void 0) {
         res.statusCode(509);
         res.statusMessage("Request malformed");
@@ -26310,13 +26303,13 @@ var sAIgenetAPI = (function() {
       }
       messages = [sys_msg].concat(messages);
       requestData["messages"] = messages;
-      var remoteResponse = await this.FetchWithTor(this._blockrunBase + "/v1/chat/completions", {
+      var remoteResponse = await this.Fetch(this._blockrunBase + "/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
         signal: AbortSignal.timeout(3e5)
       });
-      var textResponse = await remoteResponse.Response.text();
+      var textResponse = await remoteResponse.text();
       if (this._verbose == true) {
         console.log(textResponse);
       }
@@ -26365,7 +26358,6 @@ var sAIgenetAPI = (function() {
           console.log(e);
         }
         res.header("Content-Type", "text/event-stream");
-        res.header("x-tor-ip", remoteResponse.IpAddress);
         res.header("Cache-Control", "no-cache");
         if (this._verbose == true) {
           console.log(textResponse);
@@ -26373,7 +26365,6 @@ var sAIgenetAPI = (function() {
         res.send(textResponse);
       } else {
         res.header("Content-Type", "application/json");
-        res.header("x-tor-ip", remoteResponse.IpAddress);
         if (this._verbose == true) {
           console.log(textResponse);
         }
@@ -26398,7 +26389,7 @@ var sAIgenetAPI = (function() {
       }
       return ret;
     },
-    Run: async function() {
+    Run: function() {
       this._server.listen(this._port, (err) => {
         if (err) console.log(err);
         console.log("Server listening on PORT", this._port);
