@@ -26212,7 +26212,6 @@ var sAIgenetAPI = (function() {
       if (this._verbose) {
         console.log(url, init2, ipAdress);
         console.log(response);
-        console.log(await response.text());
       }
       return {
         Response: response,
@@ -26316,28 +26315,38 @@ var sAIgenetAPI = (function() {
       res.header("Content-Type", "application/json");
       res.header("x-tor-ip", remoteResponse.IpAddress);
       var textResponse = await remoteResponse.Response.text();
+      if (this._verbose == true) {
+        console.log(textResponse);
+      }
       var jsonResponse = JSON.parse(textResponse);
-      if (jsonResponse["choices"] != void 0 && jsonResponse["choices"][0]["message"]["content"] != void 0) {
-        var sContent = jsonResponse["choices"][0]["message"]["content"];
-        var sThinking = "";
-        var start = sContent.indexOf("<thinking>");
-        var end = sContent.indexOf("</thinking>");
-        while (start != -1 && end != -1) {
-          sThinking += sContent.substr(start + 10, end - (start + 10)) + "\n";
-          sContent = sContent.substr(end + 11);
-          start = sContent.indexOf("<thinking>");
-          end = sContent.indexOf("</thinking>");
-        }
-        jsonResponse["choices"][0]["message"]["content"] = sContent;
-        if (thinking == true) {
-          if (jsonResponse["choices"][0]["message"]["reasoning_content"] == void 0) {
-            jsonResponse["choices"][0]["message"]["reasoning_content"] = "";
-          } else {
-            jsonResponse["choices"][0]["message"]["reasoning_content"] += "\n";
+      try {
+        if (jsonResponse["choices"] != void 0 && jsonResponse["choices"][0]["message"]["content"] != void 0) {
+          var sContent = jsonResponse["choices"][0]["message"]["content"];
+          var sThinking = "";
+          var start = sContent.indexOf("<thinking>");
+          var end = sContent.indexOf("</thinking>");
+          while (start != -1 && end != -1) {
+            sThinking += sContent.substr(start + 10, end - (start + 10)) + "\n";
+            sContent = sContent.substr(end + 11);
+            start = sContent.indexOf("<thinking>");
+            end = sContent.indexOf("</thinking>");
           }
-          jsonResponse["choices"][0]["message"]["reasoning_content"] += sThinking;
+          jsonResponse["choices"][0]["message"]["content"] = sContent;
+          if (thinking == true) {
+            if (jsonResponse["choices"][0]["message"]["reasoning_content"] == void 0) {
+              jsonResponse["choices"][0]["message"]["reasoning_content"] = "";
+            } else {
+              jsonResponse["choices"][0]["message"]["reasoning_content"] += "\n";
+            }
+            jsonResponse["choices"][0]["message"]["reasoning_content"] += sThinking;
+          }
+          textResponse = JSON.stringify(jsonResponse);
         }
-        textResponse = JSON.stringify(jsonResponse);
+      } catch (e) {
+        console.log(e);
+      }
+      if (this._verbose == true) {
+        console.log(textResponse);
       }
       res.send(textResponse);
     },
