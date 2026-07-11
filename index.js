@@ -26265,12 +26265,13 @@ var sAIgenetAPI = (function() {
         model: data.model
       };
       var thinking = false;
+      var stream = false;
       for (var s in data) {
         switch (s) {
           case "max_tokens":
           case "temperature":
           case "top_p":
-          //case "stream":
+          case "stream":
           case "tools":
           case "tool_choice":
           case "response_format":
@@ -26286,6 +26287,9 @@ var sAIgenetAPI = (function() {
       }
       if (requestData["reasoning_effort"] != void 0 && requestData["reasoning_effort"] != "none" || requestData["thinking"] != void 0 && requestData["thinking"]["type"] != void 0 && requestData["thinking"]["type"] == "enabled") {
         thinking = true;
+      }
+      if (requestData["stream"] != void 0 && requestData["stream"] != null && requestData["stream"] == true) {
+        stream = true;
       }
       var sys_msg = {
         role: "system",
@@ -26312,8 +26316,6 @@ var sAIgenetAPI = (function() {
         body: JSON.stringify(requestData),
         signal: AbortSignal.timeout(3e5)
       });
-      res.header("Content-Type", "application/json");
-      res.header("x-tor-ip", remoteResponse.IpAddress);
       var textResponse = await remoteResponse.Response.text();
       if (this._verbose == true) {
         console.log(textResponse);
@@ -26348,7 +26350,26 @@ var sAIgenetAPI = (function() {
       if (this._verbose == true) {
         console.log(textResponse);
       }
-      res.send(textResponse);
+      if (stream == true) {
+        try {
+          if (jsonResponse["choices"] != void 0 && jsonResponse["choices"][0]["message"] != void 0) {
+            jsonResponse["choices"][0]["delta"] = jsonResponse["choices"][0]["message"];
+            delete jsonResponse["choices"][0]["message"];
+            jsonResponse["object"] = "chat.completion.chunk";
+            textResponse = JSON.stringify(jsonResponse);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+        res.header("Content-Type", "text/event-stream");
+        res.header("x-tor-ip", remoteResponse.IpAddress);
+        res.header("Cache-Control", "no-cache");
+        res.send("data: " + textResponse);
+      } else {
+        res.header("Content-Type", "application/json");
+        res.header("x-tor-ip", remoteResponse.IpAddress);
+        res.send(textResponse);
+      }
     },
     LoadJailbreak: async function(name) {
       if (this._verbose) {
