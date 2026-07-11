@@ -26210,8 +26210,9 @@ var sAIgenetAPI = (function() {
       let response = await client2.fetch(url, init2);
       client2.close();
       if (this._verbose) {
-        console.log(url, init2);
-        console.log(response, ipAdress);
+        console.log(url, init2, ipAdress);
+        console.log(response);
+        console.log(await response.text());
       }
       return {
         Response: response,
