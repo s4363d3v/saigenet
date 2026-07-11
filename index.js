@@ -26290,6 +26290,7 @@ var sAIgenetAPI = (function() {
       }
       if (requestData["stream"] != void 0 && requestData["stream"] != null && requestData["stream"] == true) {
         stream = true;
+        delete requestData["stream"];
       }
       var sys_msg = {
         role: "system",
