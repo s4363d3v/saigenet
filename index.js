@@ -26182,7 +26182,8 @@ var sAIgenetAPI = (function() {
     this.ConfigureTor();
     this._jb = {};
     this._server = (0, import_express.default)();
-    this._server.use(import_express.default.json());
+    this._server.use(import_express.default.json({ limit: "50mb" }));
+    this._server.use(import_express.default.urlencoded({ limit: "50mb" }));
     this._server.get("{*jb}/v1/models", this.ResolveModelCall.bind(this));
     this._server.post("{*jb}/v1/chat/completions", this.ResolveChatCompletion.bind(this));
   }
