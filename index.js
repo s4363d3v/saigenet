@@ -26374,7 +26374,7 @@ var JPATH = process.env.SAIGENETAPI_JBPATH != void 0 ? "" + process.env.SAIGENET
 var BASEPATH = process.env.SAIGENETAPI_BASEPATH != void 0 ? "" + process.env.SAIGENETAPI_BASEPATH : "";
 var VERBOSE = process.env.SAIGENETAPI_VERBOSE != void 0 && process.env.SAIGENETAPI_VERBOSE == "true" ? true : false;
 var KEY = process.env.SAIGENETAPI_KEY != void 0 ? process.env.SAIGENETAPI_KEY : "123456789";
-var client = new sAIgenetAPI(PORT, BASEPATH, JPATH, VERBOSE);
+var client = new sAIgenetAPI(PORT, BASEPATH, JPATH, VERBOSE, KEY);
 client.Run();
 /*! Bundled license information:
 
