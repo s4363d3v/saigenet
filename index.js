@@ -26271,7 +26271,6 @@ var sAIgenetAPI = (function() {
           case "max_tokens":
           case "temperature":
           case "top_p":
-          case "stream":
           case "tools":
           case "tool_choice":
           case "response_format":
@@ -26281,16 +26280,16 @@ var sAIgenetAPI = (function() {
           case "prompt_cache":
             requestData[s] = data[s];
             break;
+          case "stream":
+            if (data[s] == true) {
+              stream = true;
+            }
           default:
             break;
         }
       }
       if (requestData["reasoning_effort"] != void 0 && requestData["reasoning_effort"] != "none" || requestData["thinking"] != void 0 && requestData["thinking"]["type"] != void 0 && requestData["thinking"]["type"] == "enabled") {
         thinking = true;
-      }
-      if (requestData["stream"] != void 0 && requestData["stream"] != null && requestData["stream"] == true) {
-        stream = true;
-        delete requestData["stream"];
       }
       var sys_msg = {
         role: "system",
