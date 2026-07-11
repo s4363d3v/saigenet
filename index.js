@@ -26281,9 +26281,8 @@ var sAIgenetAPI = (function() {
             requestData[s] = data[s];
             break;
           case "stream":
-            if (data[s] == true) {
-              stream = true;
-            }
+            stream = true;
+            break;
           default:
             break;
         }
@@ -26349,6 +26348,7 @@ var sAIgenetAPI = (function() {
       }
       if (this._verbose == true) {
         console.log(textResponse);
+        console.log("stream", stream);
       }
       if (stream == true) {
         try {
