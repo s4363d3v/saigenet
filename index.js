@@ -26339,9 +26339,9 @@ var sAIgenetAPI = (function() {
               console.log("sThinking", sThinking);
               console.log(sThinkingNew);
             }
+            sContent = sThinking;
+            sThinking = sThinkingNew;
           }
-          sContent = sThinking;
-          sThinking = sThinkingNew;
           jsonResponse["choices"][0]["message"]["content"] = sContent;
           if (thinking == true) {
             if (jsonResponse["choices"][0]["message"]["reasoning_content"] == void 0) {
