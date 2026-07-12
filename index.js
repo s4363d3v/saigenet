@@ -26184,8 +26184,8 @@ var sAIgenetAPI = (function() {
     this._server = (0, import_express.default)();
     this._server.use(import_express.default.json({ limit: "50mb" }));
     this._server.use(import_express.default.urlencoded({ limit: "50mb" }));
-    this._server.get("{*jb}/v1/models", this.ResolveModelCall.bind(this));
-    this._server.post("{*jb}/v1/chat/completions", this.ResolveChatCompletion.bind(this));
+    this._server.get("/v1/models", this.ResolveModelCall.bind(this));
+    this._server.post("/v1/chat/completions", this.ResolveChatCompletion.bind(this));
     this._storage = new storage_exports.MemoryStorage();
     this.client = new TorClient2(this._verbose ? { log: new Log(), logLevel: "info", storage: this._storage } : { storage: this._storage });
   }
@@ -26201,6 +26201,9 @@ var sAIgenetAPI = (function() {
         torConfig = {};
       }
       this._torConfig = torConfig;
+    },
+    GetAvailableJailbreaks: function() {
+      return import_node_fs.default.readdirSync(this._jbPath);
     },
     Fetch: function(url, init2) {
       {
@@ -26223,15 +26226,24 @@ var sAIgenetAPI = (function() {
       var textResponse = await torRes.text();
       var parsedResponse = JSON.parse(textResponse);
       var objResponse = {
-        network: "mainnet",
-        networkName: "Base",
         object: "list",
         data: []
       };
       if (parsedResponse["data"] != void 0) {
         for (var nCount = 0; nCount < parsedResponse["data"].length; nCount++) {
           if (parsedResponse["data"][nCount]["billing_mode"] == "free") {
-            objResponse.data.push(parsedResponse["data"][nCount]);
+            let model = {
+              id: parsedResponse["data"][nCount]["id"],
+              object: "model",
+              created: parsedResponse["data"][nCount]["created"],
+              owned_by: parsedResponse["data"][nCount]["owned_by"]
+            };
+            this.GetAvailableJailbreaks().forEach((jb) => {
+              let clonedModel = Object.assign({}, model);
+              clonedModel.id = jb + "/" + clonedModel.id;
+              objResponse.data.push(clonedModel);
+            });
+            objResponse.data.push(model);
           }
         }
       }
@@ -26252,6 +26264,12 @@ var sAIgenetAPI = (function() {
         res.statusMessage("Request malformed");
         res.sendStatus();
         return;
+      }
+      let jbName = null;
+      let modelSplitted = data.model.split("/");
+      if (modelSplitted.length == 3) {
+        jbName = modelSplitted.reverse().pop();
+        data.model = modelSplitted.reverse().join("/");
       }
       var requestData = {
         model: data.model
@@ -26294,10 +26312,11 @@ var sAIgenetAPI = (function() {
           messages.push(data.messages[nCount]);
         }
       }
-      console.log(req.params.jb);
-      var jb = await this.LoadJailbreak(req.params.jb.reverse()[0]);
-      if (jb != null) {
-        sys_msg.content = jb + "\n\n" + sys_msg.content;
+      if (jbName != null) {
+        var jb = await this.LoadJailbreak(jbName);
+        if (jb != null) {
+          sys_msg.content = jb + "\n\n" + sys_msg.content;
+        }
       }
       messages = [sys_msg].concat(messages);
       requestData["messages"] = messages;
