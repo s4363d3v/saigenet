@@ -26217,7 +26217,7 @@ var sAIgenetAPI = (function() {
         res.sendStatus(401);
         return;
       }
-      var torRes = await this.Fetch(this._blockrunBase + "/v1/models", {
+      var torRes = await fetch(this._blockrunBase + "/v1/models", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         //body: JSON.stringify({ key: 'value' }),
