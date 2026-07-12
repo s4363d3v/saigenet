@@ -26186,29 +26186,27 @@ var sAIgenetAPI = (function() {
     this._server.use(import_express.default.urlencoded({ limit: "50mb" }));
     this._server.get("{*jb}/v1/models", this.ResolveModelCall.bind(this));
     this._server.post("{*jb}/v1/chat/completions", this.ResolveChatCompletion.bind(this));
+    this._storage = new storage_exports.MemoryStorage();
+    this.client = new TorClient2(this._verbose ? { log: new Log(), logLevel: "info", storage: this._storage } : { storage: this._storage });
   }
   sAIgenetAPI2.prototype = {
     ConfigureTor: function() {
       let torConfig = {};
       if (this._verbose) {
         torConfig = {
-          storage: new storage_exports.MemoryStorage(),
           log: new Log(),
-          // logs to console with timestamps
           logLevel: "info"
         };
       } else {
-        torConfig = {
-          storage: new storage_exports.MemoryStorage()
-        };
+        torConfig = {};
       }
       this._torConfig = torConfig;
     },
     Fetch: function(url, init2) {
       {
-        let client2 = new TorClient2(this._torConfig);
-        return client2.fetch(url, init2);
-        client2.close();
+        this.client.close();
+        this.client = new TorClient2(this._verbose ? { log: new Log(), logLevel: "info", storage: this._storage } : { storage: this._storage });
+        return this.client.fetch(url, init2);
       }
     },
     ResolveModelCall: async function(req, res, next) {
