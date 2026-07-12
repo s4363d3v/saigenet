@@ -26326,7 +26326,7 @@ var sAIgenetAPI = (function() {
           }
           console.log("sContent", sContent);
           console.log("sThinking", sThinking);
-          if (sContent.length < 2 && sThinking.length > 2) {
+          if (sContent == "" && sThinking != "") {
             var sThinkingNew = "";
             start = sThinking.indexOf("<jailbreak>");
             end = sThinking.indexOf("</jailbreak>");
@@ -26337,7 +26337,7 @@ var sAIgenetAPI = (function() {
               start = sThinking.indexOf("<jailbreak>");
               end = sThinking.indexOf("</jailbreak>");
               console.log("sThinking", sThinking);
-              console.log(sThinkingNew);
+              console.log("sThinkingNew", sThinkingNew);
             }
             sContent = sThinking;
             sThinking = sThinkingNew;
