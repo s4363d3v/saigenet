@@ -26324,15 +26324,20 @@ var sAIgenetAPI = (function() {
             start = sContent.indexOf("<thinking>");
             end = sContent.indexOf("</thinking>");
           }
+          console.log("sContent", sContent);
+          console.log("sThinking", sThinking);
           if (sContent.length < 2 && sThinking.length > 2) {
             var sThinkingNew = "";
             start = sThinking.indexOf("<jailbreak>");
             end = sThinking.indexOf("</jailbreak>");
+            console.log(start, end);
             while (start != -1 && end != -1) {
               sThinkingNew += sThinking.substr(start + 11, end - (start + 11)) + "\n";
               sThinking = sThinking.substr(end + 12);
               start = sThinking.indexOf("<jailbreak>");
               end = sThinking.indexOf("</jailbreak>");
+              console.log("sThinking", sThinking);
+              console.log(sThinkingNew);
             }
           }
           sContent = sThinking;
