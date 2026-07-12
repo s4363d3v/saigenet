@@ -26408,7 +26408,7 @@ var sAIgenetAPI = (function() {
     },
     LoadJailbreak: async function(name) {
       if (this._verbose) {
-        console.log("trying to load: " + this._jbPath + "/" + name + ".txt");
+        console.log("trying to load: " + this._jbPath + "/" + name);
       }
       let ret = null;
       if (this._jb[name] != void 0) {
@@ -26416,8 +26416,8 @@ var sAIgenetAPI = (function() {
         if (this._verbose) {
           console.log("found: " + ret);
         }
-      } else if (import_node_fs.default.existsSync(this._jbPath + "/" + name + ".txt")) {
-        ret = import_node_fs.default.readFileSync(this._jbPath + "/" + name + ".txt");
+      } else if (import_node_fs.default.existsSync(this._jbPath + "/" + name)) {
+        ret = import_node_fs.default.readFileSync(this._jbPath + "/" + name);
         if (this._verbose) {
           console.log("found: " + ret);
         }
