@@ -26187,7 +26187,6 @@ var sAIgenetAPI = (function() {
     this._server.get("/v1/models", this.ResolveModelCall.bind(this));
     this._server.post("/v1/chat/completions", this.ResolveChatCompletion.bind(this));
     this._storage = new storage_exports.MemoryStorage();
-    this.client = new TorClient2(this._verbose ? { log: new Log(), logLevel: "info", storage: this._storage } : { storage: this._storage });
   }
   sAIgenetAPI2.prototype = {
     ConfigureTor: function() {
@@ -26205,11 +26204,12 @@ var sAIgenetAPI = (function() {
     GetAvailableJailbreaks: function() {
       return import_node_fs.default.readdirSync(this._jbPath);
     },
-    Fetch: function(url, init2) {
+    Fetch: async function(url, init2) {
       {
-        this.client.close();
-        this.client = new TorClient2(this._verbose ? { log: new Log(), logLevel: "info", storage: this._storage } : { storage: this._storage });
-        return this.client.fetch(url, init2);
+        let client2 = new TorClient2(this._verbose ? { log: new Log(), logLevel: "info", storage: this._storage } : { storage: this._storage });
+        let response = await client2.fetch(url, init2);
+        client2.close();
+        return response;
       }
     },
     ResolveModelCall: async function(req, res, next) {
